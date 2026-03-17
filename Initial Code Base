@@ -1,1 +1,1359 @@
-{"metadata":{"kernelspec":{"language":"python","display_name":"Python 3","name":"python3"},"language_info":{"name":"python","version":"3.12.12","mimetype":"text/x-python","codemirror_mode":{"name":"ipython","version":3},"pygments_lexer":"ipython3","nbconvert_exporter":"python","file_extension":".py"},"kaggle":{"accelerator":"none","dataSources":[{"sourceType":"competition","sourceId":130469,"databundleVersionId":16119586}],"dockerImageVersionId":31286,"isInternetEnabled":true,"language":"python","sourceType":"notebook","isGpuEnabled":false}},"nbformat_minor":4,"nbformat":4,"cells":[{"cell_type":"code","source":"# This Python 3 environment comes with many helpful analytics libraries installed\n# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n# For example, here's several helpful packages to load\n\nimport numpy as np # linear algebra\nimport pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n\n# Input data files are available in the read-only \"../input/\" directory\n# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n\nimport os\nfor dirname, _, filenames in os.walk('/kaggle/input'):\n    for filename in filenames:\n        print(os.path.join(dirname, filename))\n\n# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session","metadata":{"_uuid":"8f2839f25d086af736a60e9eeb907d3b93b6e0e5","_cell_guid":"b1076dfc-b9ad-4769-8c92-a6c4dae69d19","trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:26:21.659256Z","iopub.execute_input":"2026-03-17T09:26:21.659631Z","iopub.status.idle":"2026-03-17T09:26:22.008351Z","shell.execute_reply.started":"2026-03-17T09:26:21.659599Z","shell.execute_reply":"2026-03-17T09:26:22.007194Z"}},"outputs":[{"name":"stdout","text":"/kaggle/input/competitions/march-machine-learning-mania-2026/Conferences.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneyDetailedResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonCompactResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneySeedRoundSlots.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonDetailedResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneyCompactResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MGameCities.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WSecondaryTourneyCompactResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WGameCities.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MSeasons.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneySlots.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MSecondaryTourneyTeams.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/SampleSubmissionStage2.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/Cities.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MTeamSpellings.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonCompactResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MMasseyOrdinals.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MSecondaryTourneyCompactResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WTeams.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WConferenceTourneyGames.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneySlots.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneySeeds.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneyCompactResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WSeasons.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneySeeds.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MTeamCoaches.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MConferenceTourneyGames.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonDetailedResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneyDetailedResults.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WTeamSpellings.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MTeamConferences.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/MTeams.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WTeamConferences.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/SampleSubmissionStage1.csv\n/kaggle/input/competitions/march-machine-learning-mania-2026/WSecondaryTourneyTeams.csv\n","output_type":"stream"}],"execution_count":1},{"cell_type":"code","source":"#import os\n\n# The exact path you provided\nfile_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonCompactResults.csv'\ndirectory_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n\n# 1. Check if the directory exists\nif os.path.isdir(directory_path):\n    print(f\"✅ Directory Found: {directory_path}\")\n    \n    # 2. Check if the specific file exists\n    if os.path.isfile(file_path):\n        print(f\"✅ File Found: {file_path}\")\n    else:\n        print(f\"❌ File NOT Found: {file_path}\")\n        print(\"\\nAvailable files in this directory:\")\n        # List all files so you can see if the name is slightly different\n        for f in os.listdir(directory_path):\n            print(f\"- {f}\")\nelse:\n    print(f\"❌ Directory NOT Found: {directory_path}\")\n    print(\"\\nAvailable directories in /kaggle/input/competitions/:\")\n    print(os.listdir('/kaggle/input/competitions/'))","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"import pandas as pd\nimport numpy as np\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.preprocessing import StandardScaler\n","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"# --- PREPARATION: CREATE SEASON_STATS ---\n\n#Pre- Code for Execution setting the path\npath_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\ndetailed_results = pd.read_csv(f'{path_prefix}MRegularSeasonDetailedResults.csv')\n\n# 1. Load the detailed results (needed for efficiency metrics)\ndetailed_results = pd.read_csv(f'{path_prefix}MRegularSeasonDetailedResults.csv')\n\ndef prepare_season_stats(df):\n    # Create stats for winners\n    w_stats = df[['Season', 'WTeamID', 'WScore', 'LScore', 'WFGA', 'WOR', 'WTO', 'WFTA']].copy()\n    w_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n    \n    # Create stats for losers\n    l_stats = df[['Season', 'LTeamID', 'LScore', 'WScore', 'LFGA', 'LOR', 'LTO', 'LFTA']].copy()\n    l_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n    \n    # Combine them to get stats for every team in every game\n    stats_concat = pd.concat([w_stats, l_stats])\n    \n    # Calculate Possessions (Standard NCAA formula)\n    # Possessions = 0.96 * (FGA - OR + TO + 0.44 * FTA)\n    stats_concat['Possessions'] = 0.96 * (\n        stats_concat['FGA'] - stats_concat['OR'] + stats_concat['TO'] + (0.44 * stats_concat['FTA'])\n    )\n    \n    # Aggregate by Season and Team\n    season_stats = stats_concat.groupby(['Season', 'TeamID']).agg({\n        'PointsFor': 'sum',\n        'PointsAgainst': 'sum',\n        'Possessions': 'sum'\n    }).reset_index()\n    \n    # Calculate efficiency metrics\n    # AdjOE: Points scored per 100 possessions\n    # AdjDE: Points allowed per 100 possessions\n    # Tempo: Average possessions per game (we'll divide by game count)\n    \n    games_played = stats_concat.groupby(['Season', 'TeamID']).size().reset_index(name='GameCount')\n    season_stats = season_stats.merge(games_played, on=['Season', 'TeamID'])\n    \n    season_stats['AdjOE'] = (season_stats['PointsFor'] / season_stats['Possessions']) * 100\n    season_stats['AdjDE'] = (season_stats['PointsAgainst'] / season_stats['Possessions']) * 100\n    season_stats['Tempo'] = season_stats['Possessions'] / season_stats['GameCount']\n    \n    # Keep only the columns your main script uses\n    return season_stats[['Season', 'TeamID', 'AdjOE', 'AdjDE', 'Tempo']]\n\n# Generate the dataframe\nseason_stats = prepare_season_stats(detailed_results)\n\nprint(\"✅ 'season_stats' prepared successfully.\")\nprint(season_stats.head())","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"# --- STEP 1: LOAD THE DATA ---\n# Using the official 2026 Kaggle competition paths\npath_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n\nresults_df = pd.read_csv(f'{path_prefix}MRegularSeasonCompactResults.csv')\nseeds_2026 = pd.read_csv(f'{path_prefix}MNCAATourneySeeds.csv')\n# Note: 'season_stats' should be your prepared DataFrame with AdjOE, AdjDE, etc.\n# If it's not loaded, ensure your code that defines 'season_stats' runs before this.","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"# --- STEP 2: DEFINE FEATURES AND MODEL ---\nFEATURE_COLS = ['Diff_AdjOE', 'Diff_AdjDE', 'Diff_Tempo', 'Diff_EffMargin']\n\npreprocessor = ColumnTransformer(\n    transformers=[('num', StandardScaler(), FEATURE_COLS)]\n)\n\npipeline = Pipeline(steps=[\n    ('preprocessor', preprocessor),\n    ('classifier', RandomForestClassifier(n_estimators=200, max_depth=7, random_state=42))\n])","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"# --- STEP 3: PREPARE TRAINING DATA (HISTORICAL DIFFERENCES) ---\n# We use games since 2015 to train the model on how \"Diffs\" lead to wins\ntrain_games = results_df[results_df['Season'] >= 2015].copy()\n\nwin_rows = train_games[['Season', 'WTeamID', 'LTeamID']].rename(columns={'WTeamID': 'T1', 'LTeamID': 'T2'})\nwin_rows['Result'] = 1\nloss_rows = train_games[['Season', 'LTeamID', 'WTeamID']].rename(columns={'LTeamID': 'T1', 'WTeamID': 'T2'})\nloss_rows['Result'] = 0\n\ntrain_df = pd.concat([win_rows, loss_rows])\n\n# Merge with stats for both teams\ntrain_df = train_df.merge(season_stats, left_on=['Season', 'T1'], right_on=['Season', 'TeamID'])\ntrain_df = train_df.merge(season_stats, left_on=['Season', 'T2'], right_on=['Season', 'TeamID'], suffixes=('_T1', '_T2'))\n\n# Calculate the Diffs the Random Forest will learn from\ntrain_df['Diff_AdjOE'] = train_df['AdjOE_T1'] - train_df['AdjOE_T2']\ntrain_df['Diff_AdjDE'] = train_df['AdjDE_T1'] - train_df['AdjDE_T2']\ntrain_df['Diff_Tempo'] = train_df['Tempo_T1'] - train_df['Tempo_T2']\ntrain_df['Diff_EffMargin'] = (train_df['AdjOE_T1'] - train_df['AdjDE_T1']) - (train_df['AdjOE_T2'] - train_df['AdjDE_T2'])\n","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"\n# --- STEP 4: TRAIN THE MODEL ---\npipeline.fit(train_df[FEATURE_COLS], train_df['Result'])\nprint(\"Random Forest Training Complete.\")\n","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"# --- STEP 5: GENERATE 2026 SUBMISSION ---\nteams_2026 = sorted(seeds_2026[seeds_2026['Season'] == 2026]['TeamID'].unique())\nsubmission_data = []\n\nfor i, team1 in enumerate(teams_2026):\n    for team2 in teams_2026[i+1:]:\n        t1 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team1)]\n        t2 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team2)]\n        \n        if t1.empty or t2.empty:\n            prob = 0.5\n        else:\n            t1_r, t2_r = t1.iloc[0], t2.iloc[0]\n            input_row = pd.DataFrame([{\n                'Diff_AdjOE': t1_r['AdjOE'] - t2_r['AdjOE'],\n                'Diff_AdjDE': t1_r['AdjDE'] - t2_r['AdjDE'],\n                'Diff_Tempo': t1_r['Tempo'] - t2_r['Tempo'],\n                'Diff_EffMargin': (t1_r['AdjOE'] - t1_r['AdjDE']) - (t2_r['AdjOE'] - t2_r['AdjDE'])\n            }])\n            prob = pipeline.predict_proba(input_row)[0][1]\n        \n        submission_data.append([f\"2026_{team1}_{team2}\", prob])\n","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"# --- STEP 6: EXPORT TO CSV ---\nsubmission_df = pd.DataFrame(submission_data, columns=['ID', 'Pred'])\nsubmission_df.to_csv('submission.csv', index=False)\nprint(\"Final submission.csv created for the 2026 Tournament!\")","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"import pandas as pd\nimport re\n\n# 1. Load the file\nsub = pd.read_csv('submission.csv')\n\ndef validate_submission(df):\n    errors = 0\n    print(\"--- 🏁 Starting Submission Validation ---\")\n\n    # A. Check Column Names\n    expected_cols = ['ID', 'Pred']\n    if list(df.columns) == expected_cols:\n        print(\"✅ Columns: Correct ('ID', 'Pred')\")\n    else:\n        print(f\"❌ Columns: Incorrect. Found {df.columns.tolist()}\")\n        errors += 1\n\n    # B. Check Row Count (For 68 teams, should be 2,278 matchups)\n    if len(df) == 2278:\n        print(\"✅ Row Count: Correct (2,278 matchups)\")\n    else:\n        print(f\"⚠️ Row Count: {len(df)}. (Expected 2,278 for 68 teams). Check your teams list!\")\n\n    # C. Check ID Format (2026_LowID_HighID)\n    sample_id = df['ID'].iloc[0]\n    pattern = r'^2026_\\d{4}_\\d{4}$'\n    if re.match(pattern, sample_id):\n        # Verify LowID < HighID\n        parts = sample_id.split('_')\n        if int(parts[1]) < int(parts[2]):\n            print(f\"✅ ID Format: Correct (e.g., {sample_id})\")\n        else:\n            print(f\"❌ ID Format: Wrong order! {parts[1]} must be smaller than {parts[2]}.\")\n            errors += 1\n    else:\n        print(f\"❌ ID Format: Incorrect pattern. Found {sample_id}\")\n        errors += 1\n\n    # D. Check Probability Range (0.0 to 1.0)\n    if df['Pred'].min() >= 0 and df['Pred'].max() <= 1:\n        print(f\"✅ Probabilities: Valid range ({df['Pred'].min():.2f} to {df['Pred'].max():.2f})\")\n    else:\n        print(f\"❌ Probabilities: Out of bounds! Found values outside [0, 1].\")\n        errors += 1\n\n    if errors == 0:\n        print(\"\\n🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\")\n    else:\n        print(f\"\\n🛑 Found {errors} errors. Do not submit yet!\")\n\nvalidate_submission(sub)\n","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"markdown","source":"This section will be for the Women's NCAA tourney submission","metadata":{}},{"cell_type":"code","source":"#import os\n\n# The exact path you provided\nfile_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonCompactResults.csv'\ndirectory_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n\n# 1. Check if the directory exists\nif os.path.isdir(directory_path):\n    print(f\"✅ Directory Found: {directory_path}\")\n    \n    # 2. Check if the specific file exists\n    if os.path.isfile(file_path):\n        print(f\"✅ File Found: {file_path}\")\n    else:\n        print(f\"❌ File NOT Found: {file_path}\")\n        print(\"\\nAvailable files in this directory:\")\n        # List all files so you can see if the name is slightly different\n        for f in os.listdir(directory_path):\n            print(f\"- {f}\")\nelse:\n    print(f\"❌ Directory NOT Found: {directory_path}\")\n    print(\"\\nAvailable directories in /kaggle/input/competitions/:\")\n    print(os.listdir('/kaggle/input/competitions/'))","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:26:45.646401Z","iopub.execute_input":"2026-03-17T09:26:45.646959Z","iopub.status.idle":"2026-03-17T09:26:45.656113Z","shell.execute_reply.started":"2026-03-17T09:26:45.646926Z","shell.execute_reply":"2026-03-17T09:26:45.655156Z"}},"outputs":[{"name":"stdout","text":"✅ Directory Found: /kaggle/input/competitions/march-machine-learning-mania-2026/\n✅ File Found: /kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonCompactResults.csv\n","output_type":"stream"}],"execution_count":2},{"cell_type":"code","source":"","metadata":{"trusted":true},"outputs":[],"execution_count":null},{"cell_type":"code","source":"import pandas as pd\nimport numpy as np\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.preprocessing import StandardScaler\n\n# --- STEP 1: LOAD THE DATA (WOMEN'S PREFIXES) ---\npath_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n\ntry:\n    # Changed M to W for Women's files\n    results_df = pd.read_csv(f'{path_prefix}WRegularSeasonCompactResults.csv')\n    seeds_2026 = pd.read_csv(f'{path_prefix}WNCAATourneySeeds.csv')\n    print(\"✅ Women's files loaded successfully from competitions folder.\")\nexcept FileNotFoundError:\n    print(\"❌ Path error! Searching for Women's data directory...\")\n    import os\n    for dirname, _, filenames in os.walk('/kaggle/input'):\n        for filename in filenames:\n            if 'WRegularSeasonCompactResults' in filename:\n                print(f\"Found it here: {os.path.join(dirname, filename)}\")\n\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:31:33.113082Z","iopub.execute_input":"2026-03-17T09:31:33.113546Z","iopub.status.idle":"2026-03-17T09:31:33.220504Z","shell.execute_reply.started":"2026-03-17T09:31:33.113446Z","shell.execute_reply":"2026-03-17T09:31:33.219584Z"}},"outputs":[{"name":"stdout","text":"✅ Women's files loaded successfully from competitions folder.\n","output_type":"stream"}],"execution_count":7},{"cell_type":"code","source":"# --- PREPARATION: CREATE SEASON_STATS ---\n\n#Pre- Code for Execution setting the path\npath_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\ndetailed_results = pd.read_csv(f'{path_prefix}WRegularSeasonDetailedResults.csv')\n\n# 1. Load the detailed results (needed for efficiency metrics)\ndetailed_results = pd.read_csv(f'{path_prefix}WRegularSeasonDetailedResults.csv')\n\ndef prepare_season_stats(df):\n    # Create stats for winners\n    w_stats = df[['Season', 'WTeamID', 'WScore', 'LScore', 'WFGA', 'WOR', 'WTO', 'WFTA']].copy()\n    w_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n    \n    # Create stats for losers\n    l_stats = df[['Season', 'LTeamID', 'LScore', 'WScore', 'LFGA', 'LOR', 'LTO', 'LFTA']].copy()\n    l_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n    \n    # Combine them to get stats for every team in every game\n    stats_concat = pd.concat([w_stats, l_stats])\n    \n    # Calculate Possessions (Standard NCAA formula)\n    # Possessions = 0.96 * (FGA - OR + TO + 0.44 * FTA)\n    stats_concat['Possessions'] = 0.96 * (\n        stats_concat['FGA'] - stats_concat['OR'] + stats_concat['TO'] + (0.44 * stats_concat['FTA'])\n    )\n    \n    # Aggregate by Season and Team\n    season_stats = stats_concat.groupby(['Season', 'TeamID']).agg({\n        'PointsFor': 'sum',\n        'PointsAgainst': 'sum',\n        'Possessions': 'sum'\n    }).reset_index()\n    \n    # Calculate efficiency metrics\n    # AdjOE: Points scored per 100 possessions\n    # AdjDE: Points allowed per 100 possessions\n    # Tempo: Average possessions per game (we'll divide by game count)\n    \n    games_played = stats_concat.groupby(['Season', 'TeamID']).size().reset_index(name='GameCount')\n    season_stats = season_stats.merge(games_played, on=['Season', 'TeamID'])\n    \n    season_stats['AdjOE'] = (season_stats['PointsFor'] / season_stats['Possessions']) * 100\n    season_stats['AdjDE'] = (season_stats['PointsAgainst'] / season_stats['Possessions']) * 100\n    season_stats['Tempo'] = season_stats['Possessions'] / season_stats['GameCount']\n    \n    # Keep only the columns your main script uses\n    return season_stats[['Season', 'TeamID', 'AdjOE', 'AdjDE', 'Tempo']]\n\n# Generate the dataframe\nseason_stats = prepare_season_stats(detailed_results)\n\nprint(\"✅ 'season_stats' prepared successfully.\")\nprint(season_stats.head())","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:31:52.199340Z","iopub.execute_input":"2026-03-17T09:31:52.199712Z","iopub.status.idle":"2026-03-17T09:31:52.779553Z","shell.execute_reply.started":"2026-03-17T09:31:52.199668Z","shell.execute_reply":"2026-03-17T09:31:52.778641Z"}},"outputs":[{"name":"stdout","text":"✅ 'season_stats' prepared successfully.\n   Season  TeamID      AdjOE       AdjDE      Tempo\n0    2010    3102  84.072663  116.461787  61.638857\n1    2010    3103  95.392779   91.407435  65.239040\n2    2010    3104  90.062660   94.081586  71.214786\n3    2010    3105  86.810846   92.471273  70.011733\n4    2010    3106  83.647627   87.100249  65.916910\n","output_type":"stream"}],"execution_count":8},{"cell_type":"code","source":"# --- STEP 2: DEFINE FEATURES AND MODEL ---\nFEATURE_COLS = ['Diff_AdjOE', 'Diff_AdjDE', 'Diff_Tempo', 'Diff_EffMargin']\n\npreprocessor = ColumnTransformer(\n    transformers=[('num', StandardScaler(), FEATURE_COLS)]\n)\n\npipeline = Pipeline(steps=[\n    ('preprocessor', preprocessor),\n    ('classifier', RandomForestClassifier(n_estimators=200, max_depth=7, random_state=42))\n])\n\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:32:01.437401Z","iopub.execute_input":"2026-03-17T09:32:01.437723Z","iopub.status.idle":"2026-03-17T09:32:01.444076Z","shell.execute_reply.started":"2026-03-17T09:32:01.437682Z","shell.execute_reply":"2026-03-17T09:32:01.443079Z"}},"outputs":[],"execution_count":9},{"cell_type":"code","source":"# --- STEP 3: PREPARE TRAINING DATA ---\n# Filter for Women's games from 2015-2025\ntrain_games = results_df[results_df['Season'] >= 2015].copy()\n\nwin_rows = train_games[['Season', 'WTeamID', 'LTeamID']].rename(columns={'WTeamID': 'T1', 'LTeamID': 'T2'})\nwin_rows['Result'] = 1\nloss_rows = train_games[['Season', 'LTeamID', 'WTeamID']].rename(columns={'LTeamID': 'T1', 'WTeamID': 'T2'})\nloss_rows['Result'] = 0\n\ntrain_df = pd.concat([win_rows, loss_rows])\n\n# Ensure 'season_stats' was prepared using WRegularSeasonDetailedResults.csv\ntrain_df = train_df.merge(season_stats, left_on=['Season', 'T1'], right_on=['Season', 'TeamID'])\ntrain_df = train_df.merge(season_stats, left_on=['Season', 'T2'], right_on=['Season', 'TeamID'], suffixes=('_T1', '_T2'))\n\n# Calculate Diffs\ntrain_df['Diff_AdjOE'] = train_df['AdjOE_T1'] - train_df['AdjOE_T2']\ntrain_df['Diff_AdjDE'] = train_df['AdjDE_T1'] - train_df['AdjDE_T2']\ntrain_df['Diff_Tempo'] = train_df['Tempo_T1'] - train_df['Tempo_T2']\ntrain_df['Diff_EffMargin'] = (train_df['AdjOE_T1'] - train_df['AdjDE_T1']) - (train_df['AdjOE_T2'] - train_df['AdjDE_T2'])\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:32:12.117426Z","iopub.execute_input":"2026-03-17T09:32:12.117781Z","iopub.status.idle":"2026-03-17T09:32:12.179255Z","shell.execute_reply.started":"2026-03-17T09:32:12.117752Z","shell.execute_reply":"2026-03-17T09:32:12.178268Z"}},"outputs":[],"execution_count":10},{"cell_type":"code","source":"# --- STEP 4: TRAIN THE MODEL ---\npipeline.fit(train_df[FEATURE_COLS], train_df['Result'])\nprint(\"🌲 Women's Random Forest Training Complete.\")\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:32:23.683463Z","iopub.execute_input":"2026-03-17T09:32:23.683842Z","iopub.status.idle":"2026-03-17T09:33:12.843796Z","shell.execute_reply.started":"2026-03-17T09:32:23.683809Z","shell.execute_reply":"2026-03-17T09:33:12.842848Z"}},"outputs":[{"name":"stdout","text":"🌲 Women's Random Forest Training Complete.\n","output_type":"stream"}],"execution_count":11},{"cell_type":"code","source":"# --- STEP 5: GENERATE 2026 SUBMISSION ---\nteams_2026 = sorted(seeds_2026[seeds_2026['Season'] == 2026]['TeamID'].unique())\nsubmission_data = []\n\nfor i, team1 in enumerate(teams_2026):\n    for team2 in teams_2026[i+1:]:\n        t1 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team1)]\n        t2 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team2)]\n        \n        if t1.empty or t2.empty:\n            prob = 0.5\n        else:\n            t1_r, t2_r = t1.iloc[0], t2.iloc[0]\n            input_row = pd.DataFrame([{\n                'Diff_AdjOE': t1_r['AdjOE'] - t2_r['AdjOE'],\n                'Diff_AdjDE': t1_r['AdjDE'] - t2_r['AdjDE'],\n                'Diff_Tempo': t1_r['Tempo'] - t2_r['Tempo'],\n                'Diff_EffMargin': (t1_r['AdjOE'] - t1_r['AdjDE']) - (t2_r['AdjOE'] - t2_r['AdjDE'])\n            }])\n            prob = pipeline.predict_proba(input_row)[0][1]\n        \n        # ID remains the same format, but TeamIDs will be in the 3000s\n        submission_data.append([f\"2026_{team1}_{team2}\", prob])\n\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:33:38.267213Z","iopub.execute_input":"2026-03-17T09:33:38.267547Z","iopub.status.idle":"2026-03-17T09:34:15.184849Z","shell.execute_reply.started":"2026-03-17T09:33:38.267518Z","shell.execute_reply":"2026-03-17T09:34:15.183727Z"}},"outputs":[],"execution_count":12},{"cell_type":"code","source":"# --- STEP 6: EXPORT ---\nsubmission_df = pd.DataFrame(submission_data, columns=['ID', 'Pred'])\nsubmission_df.to_csv('submission_women.csv', index=False)\nprint(\"🚀 submission_women.csv created!\")\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:35:42.719486Z","iopub.execute_input":"2026-03-17T09:35:42.719814Z","iopub.status.idle":"2026-03-17T09:35:42.734935Z","shell.execute_reply.started":"2026-03-17T09:35:42.719788Z","shell.execute_reply":"2026-03-17T09:35:42.733923Z"}},"outputs":[{"name":"stdout","text":"🚀 submission_women.csv created!\n","output_type":"stream"}],"execution_count":14},{"cell_type":"code","source":"import pandas as pd\nimport re\n\n# 1. Load the file\nsub = pd.read_csv('submission_women.csv')\n\ndef validate_submission(df):\n    errors = 0\n    print(\"--- 🏁 Starting Submission Validation ---\")\n\n    # A. Check Column Names\n    expected_cols = ['ID', 'Pred']\n    if list(df.columns) == expected_cols:\n        print(\"✅ Columns: Correct ('ID', 'Pred')\")\n    else:\n        print(f\"❌ Columns: Incorrect. Found {df.columns.tolist()}\")\n        errors += 1\n\n    # B. Check Row Count (For 68 teams, should be 2,278 matchups)\n    if len(df) == 2278:\n        print(\"✅ Row Count: Correct (2,278 matchups)\")\n    else:\n        print(f\"⚠️ Row Count: {len(df)}. (Expected 2,278 for 68 teams). Check your teams list!\")\n\n    # C. Check ID Format (2026_LowID_HighID)\n    sample_id = df['ID'].iloc[0]\n    pattern = r'^2026_\\d{4}_\\d{4}$'\n    if re.match(pattern, sample_id):\n        # Verify LowID < HighID\n        parts = sample_id.split('_')\n        if int(parts[1]) < int(parts[2]):\n            print(f\"✅ ID Format: Correct (e.g., {sample_id})\")\n        else:\n            print(f\"❌ ID Format: Wrong order! {parts[1]} must be smaller than {parts[2]}.\")\n            errors += 1\n    else:\n        print(f\"❌ ID Format: Incorrect pattern. Found {sample_id}\")\n        errors += 1\n\n    # D. Check Probability Range (0.0 to 1.0)\n    if df['Pred'].min() >= 0 and df['Pred'].max() <= 1:\n        print(f\"✅ Probabilities: Valid range ({df['Pred'].min():.2f} to {df['Pred'].max():.2f})\")\n    else:\n        print(f\"❌ Probabilities: Out of bounds! Found values outside [0, 1].\")\n        errors += 1\n\n    if errors == 0:\n        print(\"\\n🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\")\n    else:\n        print(f\"\\n🛑 Found {errors} errors. Do not submit yet!\")\n\nvalidate_submission(sub)\n","metadata":{"trusted":true,"execution":{"iopub.status.busy":"2026-03-17T09:36:59.527404Z","iopub.execute_input":"2026-03-17T09:36:59.527812Z","iopub.status.idle":"2026-03-17T09:36:59.543281Z","shell.execute_reply.started":"2026-03-17T09:36:59.527781Z","shell.execute_reply":"2026-03-17T09:36:59.542183Z"}},"outputs":[{"name":"stdout","text":"--- 🏁 Starting Submission Validation ---\n✅ Columns: Correct ('ID', 'Pred')\n✅ Row Count: Correct (2,278 matchups)\n✅ ID Format: Correct (e.g., 2026_3104_3113)\n✅ Probabilities: Valid range (0.01 to 0.99)\n\n🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\n","output_type":"stream"}],"execution_count":16}]}
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "53d29015",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:43.543987Z",
+     "iopub.status.busy": "2026-03-17T10:36:43.543541Z",
+     "iopub.status.idle": "2026-03-17T10:36:44.364737Z",
+     "shell.execute_reply": "2026-03-17T10:36:44.363749Z"
+    },
+    "papermill": {
+     "duration": 0.831002,
+     "end_time": "2026-03-17T10:36:44.366822",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:43.535820",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/Conferences.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneyDetailedResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonCompactResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneySeedRoundSlots.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonDetailedResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneyCompactResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MGameCities.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WSecondaryTourneyCompactResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WGameCities.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MSeasons.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneySlots.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MSecondaryTourneyTeams.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/SampleSubmissionStage2.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/Cities.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MTeamSpellings.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonCompactResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MMasseyOrdinals.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MSecondaryTourneyCompactResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WTeams.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WConferenceTourneyGames.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneySlots.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneySeeds.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneyCompactResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WSeasons.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WNCAATourneySeeds.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MTeamCoaches.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MConferenceTourneyGames.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonDetailedResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MNCAATourneyDetailedResults.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WTeamSpellings.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MTeamConferences.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/MTeams.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WTeamConferences.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/SampleSubmissionStage1.csv\n",
+      "/kaggle/input/competitions/march-machine-learning-mania-2026/WSecondaryTourneyTeams.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "850c1d97",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:44.378661Z",
+     "iopub.status.busy": "2026-03-17T10:36:44.378163Z",
+     "iopub.status.idle": "2026-03-17T10:36:44.385630Z",
+     "shell.execute_reply": "2026-03-17T10:36:44.384620Z"
+    },
+    "papermill": {
+     "duration": 0.015365,
+     "end_time": "2026-03-17T10:36:44.387322",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:44.371957",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ Directory Found: /kaggle/input/competitions/march-machine-learning-mania-2026/\n",
+      "✅ File Found: /kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonCompactResults.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "#import os\n",
+    "\n",
+    "# The exact path you provided\n",
+    "file_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/MRegularSeasonCompactResults.csv'\n",
+    "directory_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n",
+    "\n",
+    "# 1. Check if the directory exists\n",
+    "if os.path.isdir(directory_path):\n",
+    "    print(f\"✅ Directory Found: {directory_path}\")\n",
+    "    \n",
+    "    # 2. Check if the specific file exists\n",
+    "    if os.path.isfile(file_path):\n",
+    "        print(f\"✅ File Found: {file_path}\")\n",
+    "    else:\n",
+    "        print(f\"❌ File NOT Found: {file_path}\")\n",
+    "        print(\"\\nAvailable files in this directory:\")\n",
+    "        # List all files so you can see if the name is slightly different\n",
+    "        for f in os.listdir(directory_path):\n",
+    "            print(f\"- {f}\")\n",
+    "else:\n",
+    "    print(f\"❌ Directory NOT Found: {directory_path}\")\n",
+    "    print(\"\\nAvailable directories in /kaggle/input/competitions/:\")\n",
+    "    print(os.listdir('/kaggle/input/competitions/'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "979023e0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:44.398260Z",
+     "iopub.status.busy": "2026-03-17T10:36:44.397929Z",
+     "iopub.status.idle": "2026-03-17T10:36:46.514369Z",
+     "shell.execute_reply": "2026-03-17T10:36:46.513568Z"
+    },
+    "papermill": {
+     "duration": 2.124472,
+     "end_time": "2026-03-17T10:36:46.516600",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:44.392128",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "from sklearn.compose import ColumnTransformer\n",
+    "from sklearn.preprocessing import StandardScaler\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "7f16cd7b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:46.528881Z",
+     "iopub.status.busy": "2026-03-17T10:36:46.527504Z",
+     "iopub.status.idle": "2026-03-17T10:36:47.384480Z",
+     "shell.execute_reply": "2026-03-17T10:36:47.383533Z"
+    },
+    "papermill": {
+     "duration": 0.865099,
+     "end_time": "2026-03-17T10:36:47.386540",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:46.521441",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ 'season_stats' prepared successfully.\n",
+      "   Season  TeamID       AdjOE       AdjDE      Tempo\n",
+      "0    2003    1102  109.296726  108.819448  52.380343\n",
+      "1    2003    1103  117.097489  116.161589  67.275378\n",
+      "2    2003    1104  109.184658  102.430968  63.457371\n",
+      "3    2003    1105   97.876551  104.538031  73.326277\n",
+      "4    2003    1106   98.480143   98.701323  64.588800\n"
+     ]
+    }
+   ],
+   "source": [
+    "# --- PREPARATION: CREATE SEASON_STATS ---\n",
+    "\n",
+    "#Pre- Code for Execution setting the path\n",
+    "path_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n",
+    "detailed_results = pd.read_csv(f'{path_prefix}MRegularSeasonDetailedResults.csv')\n",
+    "\n",
+    "# 1. Load the detailed results (needed for efficiency metrics)\n",
+    "detailed_results = pd.read_csv(f'{path_prefix}MRegularSeasonDetailedResults.csv')\n",
+    "\n",
+    "def prepare_season_stats(df):\n",
+    "    # Create stats for winners\n",
+    "    w_stats = df[['Season', 'WTeamID', 'WScore', 'LScore', 'WFGA', 'WOR', 'WTO', 'WFTA']].copy()\n",
+    "    w_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n",
+    "    \n",
+    "    # Create stats for losers\n",
+    "    l_stats = df[['Season', 'LTeamID', 'LScore', 'WScore', 'LFGA', 'LOR', 'LTO', 'LFTA']].copy()\n",
+    "    l_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n",
+    "    \n",
+    "    # Combine them to get stats for every team in every game\n",
+    "    stats_concat = pd.concat([w_stats, l_stats])\n",
+    "    \n",
+    "    # Calculate Possessions (Standard NCAA formula)\n",
+    "    # Possessions = 0.96 * (FGA - OR + TO + 0.44 * FTA)\n",
+    "    stats_concat['Possessions'] = 0.96 * (\n",
+    "        stats_concat['FGA'] - stats_concat['OR'] + stats_concat['TO'] + (0.44 * stats_concat['FTA'])\n",
+    "    )\n",
+    "    \n",
+    "    # Aggregate by Season and Team\n",
+    "    season_stats = stats_concat.groupby(['Season', 'TeamID']).agg({\n",
+    "        'PointsFor': 'sum',\n",
+    "        'PointsAgainst': 'sum',\n",
+    "        'Possessions': 'sum'\n",
+    "    }).reset_index()\n",
+    "    \n",
+    "    # Calculate efficiency metrics\n",
+    "    # AdjOE: Points scored per 100 possessions\n",
+    "    # AdjDE: Points allowed per 100 possessions\n",
+    "    # Tempo: Average possessions per game (we'll divide by game count)\n",
+    "    \n",
+    "    games_played = stats_concat.groupby(['Season', 'TeamID']).size().reset_index(name='GameCount')\n",
+    "    season_stats = season_stats.merge(games_played, on=['Season', 'TeamID'])\n",
+    "    \n",
+    "    season_stats['AdjOE'] = (season_stats['PointsFor'] / season_stats['Possessions']) * 100\n",
+    "    season_stats['AdjDE'] = (season_stats['PointsAgainst'] / season_stats['Possessions']) * 100\n",
+    "    season_stats['Tempo'] = season_stats['Possessions'] / season_stats['GameCount']\n",
+    "    \n",
+    "    # Keep only the columns your main script uses\n",
+    "    return season_stats[['Season', 'TeamID', 'AdjOE', 'AdjDE', 'Tempo']]\n",
+    "\n",
+    "# Generate the dataframe\n",
+    "season_stats = prepare_season_stats(detailed_results)\n",
+    "\n",
+    "print(\"✅ 'season_stats' prepared successfully.\")\n",
+    "print(season_stats.head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "ba0d7411",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:47.398013Z",
+     "iopub.status.busy": "2026-03-17T10:36:47.397605Z",
+     "iopub.status.idle": "2026-03-17T10:36:47.534619Z",
+     "shell.execute_reply": "2026-03-17T10:36:47.533273Z"
+    },
+    "papermill": {
+     "duration": 0.145608,
+     "end_time": "2026-03-17T10:36:47.537027",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:47.391419",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 1: LOAD THE DATA ---\n",
+    "# Using the official 2026 Kaggle competition paths\n",
+    "path_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n",
+    "\n",
+    "results_df = pd.read_csv(f'{path_prefix}MRegularSeasonCompactResults.csv')\n",
+    "seeds_2026 = pd.read_csv(f'{path_prefix}MNCAATourneySeeds.csv')\n",
+    "# Note: 'season_stats' should be your prepared DataFrame with AdjOE, AdjDE, etc.\n",
+    "# If it's not loaded, ensure your code that defines 'season_stats' runs before this."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "92b15ab9",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:47.551235Z",
+     "iopub.status.busy": "2026-03-17T10:36:47.550616Z",
+     "iopub.status.idle": "2026-03-17T10:36:47.556823Z",
+     "shell.execute_reply": "2026-03-17T10:36:47.555910Z"
+    },
+    "papermill": {
+     "duration": 0.01661,
+     "end_time": "2026-03-17T10:36:47.558681",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:47.542071",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 2: DEFINE FEATURES AND MODEL ---\n",
+    "FEATURE_COLS = ['Diff_AdjOE', 'Diff_AdjDE', 'Diff_Tempo', 'Diff_EffMargin']\n",
+    "\n",
+    "preprocessor = ColumnTransformer(\n",
+    "    transformers=[('num', StandardScaler(), FEATURE_COLS)]\n",
+    ")\n",
+    "\n",
+    "pipeline = Pipeline(steps=[\n",
+    "    ('preprocessor', preprocessor),\n",
+    "    ('classifier', RandomForestClassifier(n_estimators=200, max_depth=7, random_state=42))\n",
+    "])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "703bf1d1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:47.570860Z",
+     "iopub.status.busy": "2026-03-17T10:36:47.569784Z",
+     "iopub.status.idle": "2026-03-17T10:36:47.644628Z",
+     "shell.execute_reply": "2026-03-17T10:36:47.643572Z"
+    },
+    "papermill": {
+     "duration": 0.0834,
+     "end_time": "2026-03-17T10:36:47.647010",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:47.563610",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 3: PREPARE TRAINING DATA (HISTORICAL DIFFERENCES) ---\n",
+    "# We use games since 2015 to train the model on how \"Diffs\" lead to wins\n",
+    "train_games = results_df[results_df['Season'] >= 2015].copy()\n",
+    "\n",
+    "win_rows = train_games[['Season', 'WTeamID', 'LTeamID']].rename(columns={'WTeamID': 'T1', 'LTeamID': 'T2'})\n",
+    "win_rows['Result'] = 1\n",
+    "loss_rows = train_games[['Season', 'LTeamID', 'WTeamID']].rename(columns={'LTeamID': 'T1', 'WTeamID': 'T2'})\n",
+    "loss_rows['Result'] = 0\n",
+    "\n",
+    "train_df = pd.concat([win_rows, loss_rows])\n",
+    "\n",
+    "# Merge with stats for both teams\n",
+    "train_df = train_df.merge(season_stats, left_on=['Season', 'T1'], right_on=['Season', 'TeamID'])\n",
+    "train_df = train_df.merge(season_stats, left_on=['Season', 'T2'], right_on=['Season', 'TeamID'], suffixes=('_T1', '_T2'))\n",
+    "\n",
+    "# Calculate the Diffs the Random Forest will learn from\n",
+    "train_df['Diff_AdjOE'] = train_df['AdjOE_T1'] - train_df['AdjOE_T2']\n",
+    "train_df['Diff_AdjDE'] = train_df['AdjDE_T1'] - train_df['AdjDE_T2']\n",
+    "train_df['Diff_Tempo'] = train_df['Tempo_T1'] - train_df['Tempo_T2']\n",
+    "train_df['Diff_EffMargin'] = (train_df['AdjOE_T1'] - train_df['AdjDE_T1']) - (train_df['AdjOE_T2'] - train_df['AdjDE_T2'])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "20fb5556",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:36:47.658582Z",
+     "iopub.status.busy": "2026-03-17T10:36:47.658219Z",
+     "iopub.status.idle": "2026-03-17T10:37:38.447753Z",
+     "shell.execute_reply": "2026-03-17T10:37:38.446699Z"
+    },
+    "papermill": {
+     "duration": 50.802362,
+     "end_time": "2026-03-17T10:37:38.454393",
+     "exception": false,
+     "start_time": "2026-03-17T10:36:47.652031",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Random Forest Training Complete.\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "# --- STEP 4: TRAIN THE MODEL ---\n",
+    "pipeline.fit(train_df[FEATURE_COLS], train_df['Result'])\n",
+    "print(\"Random Forest Training Complete.\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "c2575156",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:37:38.466017Z",
+     "iopub.status.busy": "2026-03-17T10:37:38.465625Z",
+     "iopub.status.idle": "2026-03-17T10:38:16.279155Z",
+     "shell.execute_reply": "2026-03-17T10:38:16.278202Z"
+    },
+    "papermill": {
+     "duration": 37.822162,
+     "end_time": "2026-03-17T10:38:16.281378",
+     "exception": false,
+     "start_time": "2026-03-17T10:37:38.459216",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 5: GENERATE 2026 SUBMISSION ---\n",
+    "teams_2026 = sorted(seeds_2026[seeds_2026['Season'] == 2026]['TeamID'].unique())\n",
+    "submission_data = []\n",
+    "\n",
+    "for i, team1 in enumerate(teams_2026):\n",
+    "    for team2 in teams_2026[i+1:]:\n",
+    "        t1 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team1)]\n",
+    "        t2 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team2)]\n",
+    "        \n",
+    "        if t1.empty or t2.empty:\n",
+    "            prob = 0.5\n",
+    "        else:\n",
+    "            t1_r, t2_r = t1.iloc[0], t2.iloc[0]\n",
+    "            input_row = pd.DataFrame([{\n",
+    "                'Diff_AdjOE': t1_r['AdjOE'] - t2_r['AdjOE'],\n",
+    "                'Diff_AdjDE': t1_r['AdjDE'] - t2_r['AdjDE'],\n",
+    "                'Diff_Tempo': t1_r['Tempo'] - t2_r['Tempo'],\n",
+    "                'Diff_EffMargin': (t1_r['AdjOE'] - t1_r['AdjDE']) - (t2_r['AdjOE'] - t2_r['AdjDE'])\n",
+    "            }])\n",
+    "            prob = pipeline.predict_proba(input_row)[0][1]\n",
+    "        \n",
+    "        submission_data.append([f\"2026_{team1}_{team2}\", prob])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "e8a11451",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:16.294249Z",
+     "iopub.status.busy": "2026-03-17T10:38:16.293481Z",
+     "iopub.status.idle": "2026-03-17T10:38:16.312711Z",
+     "shell.execute_reply": "2026-03-17T10:38:16.311610Z"
+    },
+    "papermill": {
+     "duration": 0.028557,
+     "end_time": "2026-03-17T10:38:16.314961",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.286404",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Final submission.csv created for the 2026 Tournament!\n"
+     ]
+    }
+   ],
+   "source": [
+    "# --- STEP 6: EXPORT TO CSV ---\n",
+    "submission_df = pd.DataFrame(submission_data, columns=['ID', 'Pred'])\n",
+    "submission_df.to_csv('submission.csv', index=False)\n",
+    "print(\"Final submission.csv created for the 2026 Tournament!\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "e5d74a36",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:16.327020Z",
+     "iopub.status.busy": "2026-03-17T10:38:16.326309Z",
+     "iopub.status.idle": "2026-03-17T10:38:16.341005Z",
+     "shell.execute_reply": "2026-03-17T10:38:16.340088Z"
+    },
+    "papermill": {
+     "duration": 0.022898,
+     "end_time": "2026-03-17T10:38:16.342891",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.319993",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "--- 🏁 Starting Submission Validation ---\n",
+      "✅ Columns: Correct ('ID', 'Pred')\n",
+      "✅ Row Count: Correct (2,278 matchups)\n",
+      "✅ ID Format: Correct (e.g., 2026_1103_1104)\n",
+      "✅ Probabilities: Valid range (0.03 to 0.99)\n",
+      "\n",
+      "🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import re\n",
+    "\n",
+    "# 1. Load the file\n",
+    "sub = pd.read_csv('submission.csv')\n",
+    "\n",
+    "def validate_submission(df):\n",
+    "    errors = 0\n",
+    "    print(\"--- 🏁 Starting Submission Validation ---\")\n",
+    "\n",
+    "    # A. Check Column Names\n",
+    "    expected_cols = ['ID', 'Pred']\n",
+    "    if list(df.columns) == expected_cols:\n",
+    "        print(\"✅ Columns: Correct ('ID', 'Pred')\")\n",
+    "    else:\n",
+    "        print(f\"❌ Columns: Incorrect. Found {df.columns.tolist()}\")\n",
+    "        errors += 1\n",
+    "\n",
+    "    # B. Check Row Count (For 68 teams, should be 2,278 matchups)\n",
+    "    if len(df) == 2278:\n",
+    "        print(\"✅ Row Count: Correct (2,278 matchups)\")\n",
+    "    else:\n",
+    "        print(f\"⚠️ Row Count: {len(df)}. (Expected 2,278 for 68 teams). Check your teams list!\")\n",
+    "\n",
+    "    # C. Check ID Format (2026_LowID_HighID)\n",
+    "    sample_id = df['ID'].iloc[0]\n",
+    "    pattern = r'^2026_\\d{4}_\\d{4}$'\n",
+    "    if re.match(pattern, sample_id):\n",
+    "        # Verify LowID < HighID\n",
+    "        parts = sample_id.split('_')\n",
+    "        if int(parts[1]) < int(parts[2]):\n",
+    "            print(f\"✅ ID Format: Correct (e.g., {sample_id})\")\n",
+    "        else:\n",
+    "            print(f\"❌ ID Format: Wrong order! {parts[1]} must be smaller than {parts[2]}.\")\n",
+    "            errors += 1\n",
+    "    else:\n",
+    "        print(f\"❌ ID Format: Incorrect pattern. Found {sample_id}\")\n",
+    "        errors += 1\n",
+    "\n",
+    "    # D. Check Probability Range (0.0 to 1.0)\n",
+    "    if df['Pred'].min() >= 0 and df['Pred'].max() <= 1:\n",
+    "        print(f\"✅ Probabilities: Valid range ({df['Pred'].min():.2f} to {df['Pred'].max():.2f})\")\n",
+    "    else:\n",
+    "        print(f\"❌ Probabilities: Out of bounds! Found values outside [0, 1].\")\n",
+    "        errors += 1\n",
+    "\n",
+    "    if errors == 0:\n",
+    "        print(\"\\n🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\")\n",
+    "    else:\n",
+    "        print(f\"\\n🛑 Found {errors} errors. Do not submit yet!\")\n",
+    "\n",
+    "validate_submission(sub)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "75421423",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:16.354733Z",
+     "iopub.status.busy": "2026-03-17T10:38:16.354365Z",
+     "iopub.status.idle": "2026-03-17T10:38:16.360692Z",
+     "shell.execute_reply": "2026-03-17T10:38:16.359911Z"
+    },
+    "papermill": {
+     "duration": 0.014629,
+     "end_time": "2026-03-17T10:38:16.362593",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.347964",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ Men's DataFrame created.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Change Step 6 in your Men's block\n",
+    "mens_sub_df = pd.DataFrame(submission_data, columns=['ID', 'Pred'])\n",
+    "print(\"✅ Men's DataFrame created.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "936007bc",
+   "metadata": {
+    "papermill": {
+     "duration": 0.004872,
+     "end_time": "2026-03-17T10:38:16.372495",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.367623",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "This section will be for the Women's NCAA tourney submission"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "b8576d20",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:16.384594Z",
+     "iopub.status.busy": "2026-03-17T10:38:16.383904Z",
+     "iopub.status.idle": "2026-03-17T10:38:16.397768Z",
+     "shell.execute_reply": "2026-03-17T10:38:16.396774Z"
+    },
+    "papermill": {
+     "duration": 0.022203,
+     "end_time": "2026-03-17T10:38:16.399625",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.377422",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ Directory Found: /kaggle/input/competitions/march-machine-learning-mania-2026/\n",
+      "✅ File Found: /kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonCompactResults.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "#import os\n",
+    "\n",
+    "# The exact path you provided\n",
+    "file_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/WRegularSeasonCompactResults.csv'\n",
+    "directory_path = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n",
+    "\n",
+    "# 1. Check if the directory exists\n",
+    "if os.path.isdir(directory_path):\n",
+    "    print(f\"✅ Directory Found: {directory_path}\")\n",
+    "    \n",
+    "    # 2. Check if the specific file exists\n",
+    "    if os.path.isfile(file_path):\n",
+    "        print(f\"✅ File Found: {file_path}\")\n",
+    "    else:\n",
+    "        print(f\"❌ File NOT Found: {file_path}\")\n",
+    "        print(\"\\nAvailable files in this directory:\")\n",
+    "        # List all files so you can see if the name is slightly different\n",
+    "        for f in os.listdir(directory_path):\n",
+    "            print(f\"- {f}\")\n",
+    "else:\n",
+    "    print(f\"❌ Directory NOT Found: {directory_path}\")\n",
+    "    print(\"\\nAvailable directories in /kaggle/input/competitions/:\")\n",
+    "    print(os.listdir('/kaggle/input/competitions/'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a3b2ee86",
+   "metadata": {
+    "papermill": {
+     "duration": 0.004987,
+     "end_time": "2026-03-17T10:38:16.409776",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.404789",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "97ea5325",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:16.421534Z",
+     "iopub.status.busy": "2026-03-17T10:38:16.421150Z",
+     "iopub.status.idle": "2026-03-17T10:38:16.530962Z",
+     "shell.execute_reply": "2026-03-17T10:38:16.529859Z"
+    },
+    "papermill": {
+     "duration": 0.11829,
+     "end_time": "2026-03-17T10:38:16.532895",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.414605",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ Women's files loaded successfully from competitions folder.\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "from sklearn.compose import ColumnTransformer\n",
+    "from sklearn.preprocessing import StandardScaler\n",
+    "\n",
+    "# --- STEP 1: LOAD THE DATA (WOMEN'S PREFIXES) ---\n",
+    "path_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n",
+    "\n",
+    "try:\n",
+    "    # Changed M to W for Women's files\n",
+    "    results_df = pd.read_csv(f'{path_prefix}WRegularSeasonCompactResults.csv')\n",
+    "    seeds_2026 = pd.read_csv(f'{path_prefix}WNCAATourneySeeds.csv')\n",
+    "    print(\"✅ Women's files loaded successfully from competitions folder.\")\n",
+    "except FileNotFoundError:\n",
+    "    print(\"❌ Path error! Searching for Women's data directory...\")\n",
+    "    import os\n",
+    "    for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "        for filename in filenames:\n",
+    "            if 'WRegularSeasonCompactResults' in filename:\n",
+    "                print(f\"Found it here: {os.path.join(dirname, filename)}\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "47c37f75",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:16.546825Z",
+     "iopub.status.busy": "2026-03-17T10:38:16.546452Z",
+     "iopub.status.idle": "2026-03-17T10:38:17.086552Z",
+     "shell.execute_reply": "2026-03-17T10:38:17.085502Z"
+    },
+    "papermill": {
+     "duration": 0.55035,
+     "end_time": "2026-03-17T10:38:17.088648",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:16.538298",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ 'season_stats' prepared successfully.\n",
+      "   Season  TeamID      AdjOE       AdjDE      Tempo\n",
+      "0    2010    3102  84.072663  116.461787  61.638857\n",
+      "1    2010    3103  95.392779   91.407435  65.239040\n",
+      "2    2010    3104  90.062660   94.081586  71.214786\n",
+      "3    2010    3105  86.810846   92.471273  70.011733\n",
+      "4    2010    3106  83.647627   87.100249  65.916910\n"
+     ]
+    }
+   ],
+   "source": [
+    "# --- PREPARATION: CREATE SEASON_STATS ---\n",
+    "\n",
+    "#Pre- Code for Execution setting the path\n",
+    "path_prefix = '/kaggle/input/competitions/march-machine-learning-mania-2026/'\n",
+    "detailed_results = pd.read_csv(f'{path_prefix}WRegularSeasonDetailedResults.csv')\n",
+    "\n",
+    "# 1. Load the detailed results (needed for efficiency metrics)\n",
+    "detailed_results = pd.read_csv(f'{path_prefix}WRegularSeasonDetailedResults.csv')\n",
+    "\n",
+    "def prepare_season_stats(df):\n",
+    "    # Create stats for winners\n",
+    "    w_stats = df[['Season', 'WTeamID', 'WScore', 'LScore', 'WFGA', 'WOR', 'WTO', 'WFTA']].copy()\n",
+    "    w_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n",
+    "    \n",
+    "    # Create stats for losers\n",
+    "    l_stats = df[['Season', 'LTeamID', 'LScore', 'WScore', 'LFGA', 'LOR', 'LTO', 'LFTA']].copy()\n",
+    "    l_stats.columns = ['Season', 'TeamID', 'PointsFor', 'PointsAgainst', 'FGA', 'OR', 'TO', 'FTA']\n",
+    "    \n",
+    "    # Combine them to get stats for every team in every game\n",
+    "    stats_concat = pd.concat([w_stats, l_stats])\n",
+    "    \n",
+    "    # Calculate Possessions (Standard NCAA formula)\n",
+    "    # Possessions = 0.96 * (FGA - OR + TO + 0.44 * FTA)\n",
+    "    stats_concat['Possessions'] = 0.96 * (\n",
+    "        stats_concat['FGA'] - stats_concat['OR'] + stats_concat['TO'] + (0.44 * stats_concat['FTA'])\n",
+    "    )\n",
+    "    \n",
+    "    # Aggregate by Season and Team\n",
+    "    season_stats = stats_concat.groupby(['Season', 'TeamID']).agg({\n",
+    "        'PointsFor': 'sum',\n",
+    "        'PointsAgainst': 'sum',\n",
+    "        'Possessions': 'sum'\n",
+    "    }).reset_index()\n",
+    "    \n",
+    "    # Calculate efficiency metrics\n",
+    "    # AdjOE: Points scored per 100 possessions\n",
+    "    # AdjDE: Points allowed per 100 possessions\n",
+    "    # Tempo: Average possessions per game (we'll divide by game count)\n",
+    "    \n",
+    "    games_played = stats_concat.groupby(['Season', 'TeamID']).size().reset_index(name='GameCount')\n",
+    "    season_stats = season_stats.merge(games_played, on=['Season', 'TeamID'])\n",
+    "    \n",
+    "    season_stats['AdjOE'] = (season_stats['PointsFor'] / season_stats['Possessions']) * 100\n",
+    "    season_stats['AdjDE'] = (season_stats['PointsAgainst'] / season_stats['Possessions']) * 100\n",
+    "    season_stats['Tempo'] = season_stats['Possessions'] / season_stats['GameCount']\n",
+    "    \n",
+    "    # Keep only the columns your main script uses\n",
+    "    return season_stats[['Season', 'TeamID', 'AdjOE', 'AdjDE', 'Tempo']]\n",
+    "\n",
+    "# Generate the dataframe\n",
+    "season_stats = prepare_season_stats(detailed_results)\n",
+    "\n",
+    "print(\"✅ 'season_stats' prepared successfully.\")\n",
+    "print(season_stats.head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "29930c29",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:17.101172Z",
+     "iopub.status.busy": "2026-03-17T10:38:17.100737Z",
+     "iopub.status.idle": "2026-03-17T10:38:17.106790Z",
+     "shell.execute_reply": "2026-03-17T10:38:17.105902Z"
+    },
+    "papermill": {
+     "duration": 0.014577,
+     "end_time": "2026-03-17T10:38:17.108479",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:17.093902",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 2: DEFINE FEATURES AND MODEL ---\n",
+    "FEATURE_COLS = ['Diff_AdjOE', 'Diff_AdjDE', 'Diff_Tempo', 'Diff_EffMargin']\n",
+    "\n",
+    "preprocessor = ColumnTransformer(\n",
+    "    transformers=[('num', StandardScaler(), FEATURE_COLS)]\n",
+    ")\n",
+    "\n",
+    "pipeline = Pipeline(steps=[\n",
+    "    ('preprocessor', preprocessor),\n",
+    "    ('classifier', RandomForestClassifier(n_estimators=200, max_depth=7, random_state=42))\n",
+    "])\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "e6317054",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:17.120927Z",
+     "iopub.status.busy": "2026-03-17T10:38:17.120513Z",
+     "iopub.status.idle": "2026-03-17T10:38:17.192287Z",
+     "shell.execute_reply": "2026-03-17T10:38:17.191074Z"
+    },
+    "papermill": {
+     "duration": 0.080883,
+     "end_time": "2026-03-17T10:38:17.194700",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:17.113817",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 3: PREPARE TRAINING DATA ---\n",
+    "# Filter for Women's games from 2015-2025\n",
+    "train_games = results_df[results_df['Season'] >= 2015].copy()\n",
+    "\n",
+    "win_rows = train_games[['Season', 'WTeamID', 'LTeamID']].rename(columns={'WTeamID': 'T1', 'LTeamID': 'T2'})\n",
+    "win_rows['Result'] = 1\n",
+    "loss_rows = train_games[['Season', 'LTeamID', 'WTeamID']].rename(columns={'LTeamID': 'T1', 'WTeamID': 'T2'})\n",
+    "loss_rows['Result'] = 0\n",
+    "\n",
+    "train_df = pd.concat([win_rows, loss_rows])\n",
+    "\n",
+    "# Ensure 'season_stats' was prepared using WRegularSeasonDetailedResults.csv\n",
+    "train_df = train_df.merge(season_stats, left_on=['Season', 'T1'], right_on=['Season', 'TeamID'])\n",
+    "train_df = train_df.merge(season_stats, left_on=['Season', 'T2'], right_on=['Season', 'TeamID'], suffixes=('_T1', '_T2'))\n",
+    "\n",
+    "# Calculate Diffs\n",
+    "train_df['Diff_AdjOE'] = train_df['AdjOE_T1'] - train_df['AdjOE_T2']\n",
+    "train_df['Diff_AdjDE'] = train_df['AdjDE_T1'] - train_df['AdjDE_T2']\n",
+    "train_df['Diff_Tempo'] = train_df['Tempo_T1'] - train_df['Tempo_T2']\n",
+    "train_df['Diff_EffMargin'] = (train_df['AdjOE_T1'] - train_df['AdjDE_T1']) - (train_df['AdjOE_T2'] - train_df['AdjDE_T2'])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "884de672",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:38:17.207766Z",
+     "iopub.status.busy": "2026-03-17T10:38:17.206721Z",
+     "iopub.status.idle": "2026-03-17T10:39:07.753318Z",
+     "shell.execute_reply": "2026-03-17T10:39:07.752245Z"
+    },
+    "papermill": {
+     "duration": 50.559854,
+     "end_time": "2026-03-17T10:39:07.759813",
+     "exception": false,
+     "start_time": "2026-03-17T10:38:17.199959",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "🌲 Women's Random Forest Training Complete.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# --- STEP 4: TRAIN THE MODEL ---\n",
+    "pipeline.fit(train_df[FEATURE_COLS], train_df['Result'])\n",
+    "print(\"🌲 Women's Random Forest Training Complete.\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "33c96f53",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:07.772386Z",
+     "iopub.status.busy": "2026-03-17T10:39:07.772002Z",
+     "iopub.status.idle": "2026-03-17T10:39:45.906740Z",
+     "shell.execute_reply": "2026-03-17T10:39:45.905671Z"
+    },
+    "papermill": {
+     "duration": 38.144466,
+     "end_time": "2026-03-17T10:39:45.909369",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:07.764903",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# --- STEP 5: GENERATE 2026 SUBMISSION ---\n",
+    "teams_2026 = sorted(seeds_2026[seeds_2026['Season'] == 2026]['TeamID'].unique())\n",
+    "submission_data = []\n",
+    "\n",
+    "for i, team1 in enumerate(teams_2026):\n",
+    "    for team2 in teams_2026[i+1:]:\n",
+    "        t1 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team1)]\n",
+    "        t2 = season_stats[(season_stats[\"Season\"] == 2026) & (season_stats[\"TeamID\"] == team2)]\n",
+    "        \n",
+    "        if t1.empty or t2.empty:\n",
+    "            prob = 0.5\n",
+    "        else:\n",
+    "            t1_r, t2_r = t1.iloc[0], t2.iloc[0]\n",
+    "            input_row = pd.DataFrame([{\n",
+    "                'Diff_AdjOE': t1_r['AdjOE'] - t2_r['AdjOE'],\n",
+    "                'Diff_AdjDE': t1_r['AdjDE'] - t2_r['AdjDE'],\n",
+    "                'Diff_Tempo': t1_r['Tempo'] - t2_r['Tempo'],\n",
+    "                'Diff_EffMargin': (t1_r['AdjOE'] - t1_r['AdjDE']) - (t2_r['AdjOE'] - t2_r['AdjDE'])\n",
+    "            }])\n",
+    "            prob = pipeline.predict_proba(input_row)[0][1]\n",
+    "        \n",
+    "        # ID remains the same format, but TeamIDs will be in the 3000s\n",
+    "        submission_data.append([f\"2026_{team1}_{team2}\", prob])\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "3b6cd74b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:45.922733Z",
+     "iopub.status.busy": "2026-03-17T10:39:45.922330Z",
+     "iopub.status.idle": "2026-03-17T10:39:45.937987Z",
+     "shell.execute_reply": "2026-03-17T10:39:45.936963Z"
+    },
+    "papermill": {
+     "duration": 0.024767,
+     "end_time": "2026-03-17T10:39:45.939933",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:45.915166",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "🚀 submission_women.csv created!\n"
+     ]
+    }
+   ],
+   "source": [
+    "# --- STEP 6: EXPORT ---\n",
+    "submission_df = pd.DataFrame(submission_data, columns=['ID', 'Pred'])\n",
+    "submission_df.to_csv('submission_women.csv', index=False)\n",
+    "print(\"🚀 submission_women.csv created!\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "d6614c2e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:45.952428Z",
+     "iopub.status.busy": "2026-03-17T10:39:45.952083Z",
+     "iopub.status.idle": "2026-03-17T10:39:45.966495Z",
+     "shell.execute_reply": "2026-03-17T10:39:45.965524Z"
+    },
+    "papermill": {
+     "duration": 0.023185,
+     "end_time": "2026-03-17T10:39:45.968529",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:45.945344",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "--- 🏁 Starting Submission Validation ---\n",
+      "✅ Columns: Correct ('ID', 'Pred')\n",
+      "✅ Row Count: Correct (2,278 matchups)\n",
+      "✅ ID Format: Correct (e.g., 2026_3104_3113)\n",
+      "✅ Probabilities: Valid range (0.01 to 0.99)\n",
+      "\n",
+      "🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import re\n",
+    "\n",
+    "# 1. Load the file\n",
+    "sub = pd.read_csv('submission_women.csv')\n",
+    "\n",
+    "def validate_submission(df):\n",
+    "    errors = 0\n",
+    "    print(\"--- 🏁 Starting Submission Validation ---\")\n",
+    "\n",
+    "    # A. Check Column Names\n",
+    "    expected_cols = ['ID', 'Pred']\n",
+    "    if list(df.columns) == expected_cols:\n",
+    "        print(\"✅ Columns: Correct ('ID', 'Pred')\")\n",
+    "    else:\n",
+    "        print(f\"❌ Columns: Incorrect. Found {df.columns.tolist()}\")\n",
+    "        errors += 1\n",
+    "\n",
+    "    # B. Check Row Count (For 68 teams, should be 2,278 matchups)\n",
+    "    if len(df) == 2278:\n",
+    "        print(\"✅ Row Count: Correct (2,278 matchups)\")\n",
+    "    else:\n",
+    "        print(f\"⚠️ Row Count: {len(df)}. (Expected 2,278 for 68 teams). Check your teams list!\")\n",
+    "\n",
+    "    # C. Check ID Format (2026_LowID_HighID)\n",
+    "    sample_id = df['ID'].iloc[0]\n",
+    "    pattern = r'^2026_\\d{4}_\\d{4}$'\n",
+    "    if re.match(pattern, sample_id):\n",
+    "        # Verify LowID < HighID\n",
+    "        parts = sample_id.split('_')\n",
+    "        if int(parts[1]) < int(parts[2]):\n",
+    "            print(f\"✅ ID Format: Correct (e.g., {sample_id})\")\n",
+    "        else:\n",
+    "            print(f\"❌ ID Format: Wrong order! {parts[1]} must be smaller than {parts[2]}.\")\n",
+    "            errors += 1\n",
+    "    else:\n",
+    "        print(f\"❌ ID Format: Incorrect pattern. Found {sample_id}\")\n",
+    "        errors += 1\n",
+    "\n",
+    "    # D. Check Probability Range (0.0 to 1.0)\n",
+    "    if df['Pred'].min() >= 0 and df['Pred'].max() <= 1:\n",
+    "        print(f\"✅ Probabilities: Valid range ({df['Pred'].min():.2f} to {df['Pred'].max():.2f})\")\n",
+    "    else:\n",
+    "        print(f\"❌ Probabilities: Out of bounds! Found values outside [0, 1].\")\n",
+    "        errors += 1\n",
+    "\n",
+    "    if errors == 0:\n",
+    "        print(\"\\n🚀 ALL CLEAR! Your file is ready for the 2026 Leaderboard.\")\n",
+    "    else:\n",
+    "        print(f\"\\n🛑 Found {errors} errors. Do not submit yet!\")\n",
+    "\n",
+    "validate_submission(sub)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "46d3fef1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:45.981786Z",
+     "iopub.status.busy": "2026-03-17T10:39:45.981438Z",
+     "iopub.status.idle": "2026-03-17T10:39:45.988240Z",
+     "shell.execute_reply": "2026-03-17T10:39:45.986815Z"
+    },
+    "papermill": {
+     "duration": 0.015699,
+     "end_time": "2026-03-17T10:39:45.989968",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:45.974269",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Files in /kaggle/working: ['submission_women.csv', 'submission.csv', '__notebook__.ipynb']\n",
+      "✅ The file is there! Use the refresh button in the sidebar to see it.\n"
+     ]
+    }
+   ],
+   "source": [
+    "import os\n",
+    "files = os.listdir('/kaggle/working')\n",
+    "print(\"Files in /kaggle/working:\", files)\n",
+    "\n",
+    "if 'submission_women.csv' in files:\n",
+    "    print(\"✅ The file is there! Use the refresh button in the sidebar to see it.\")\n",
+    "else:\n",
+    "    print(\"❌ The file is missing. Let's re-run the save command.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "bc87874a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:46.002520Z",
+     "iopub.status.busy": "2026-03-17T10:39:46.002173Z",
+     "iopub.status.idle": "2026-03-17T10:39:46.009189Z",
+     "shell.execute_reply": "2026-03-17T10:39:46.008343Z"
+    },
+    "papermill": {
+     "duration": 0.015709,
+     "end_time": "2026-03-17T10:39:46.011068",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:45.995359",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "✅ Women's DataFrame created.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Change Step 6 in your Women's block\n",
+    "womens_sub_df = pd.DataFrame(submission_data, columns=['ID', 'Pred'])\n",
+    "print(\"✅ Women's DataFrame created.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "b9c4170c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:46.024667Z",
+     "iopub.status.busy": "2026-03-17T10:39:46.023637Z",
+     "iopub.status.idle": "2026-03-17T10:39:46.044962Z",
+     "shell.execute_reply": "2026-03-17T10:39:46.043858Z"
+    },
+    "papermill": {
+     "duration": 0.030209,
+     "end_time": "2026-03-17T10:39:46.046907",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:46.016698",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "🚀 Success! Combined 4556 rows into submission.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Now both variables exist and can be joined\n",
+    "final_submission_df = pd.concat([mens_sub_df, womens_sub_df], ignore_index=True)\n",
+    "\n",
+    "# Save as the official file\n",
+    "final_submission_df.to_csv('submission.csv', index=False)\n",
+    "\n",
+    "print(f\"🚀 Success! Combined {len(final_submission_df)} rows into submission.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "efafc0e5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-17T10:39:46.060000Z",
+     "iopub.status.busy": "2026-03-17T10:39:46.059507Z",
+     "iopub.status.idle": "2026-03-17T10:39:46.080928Z",
+     "shell.execute_reply": "2026-03-17T10:39:46.079889Z"
+    },
+    "papermill": {
+     "duration": 0.030391,
+     "end_time": "2026-03-17T10:39:46.082906",
+     "exception": false,
+     "start_time": "2026-03-17T10:39:46.052515",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "--- Disk Check ---\n",
+      "Files in working directory: ['submission_women.csv', 'submission.csv', '__notebook__.ipynb']\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import os\n",
+    "\n",
+    "# 1. Ensure both DataFrames exist (replace with your actual variable names)\n",
+    "# Let's assume you named them mens_sub_df and womens_sub_df\n",
+    "# If you didn't, you may need to re-run your loops and save them to these specific names\n",
+    "\n",
+    "# 2. Combine them into one master DataFrame\n",
+    "final_submission_df = pd.concat([mens_sub_df, womens_sub_df], ignore_index=True)\n",
+    "\n",
+    "# 3. Save as the official filename Kaggle expects\n",
+    "final_submission_df.to_csv('submission.csv', index=False)\n",
+    "\n",
+    "# 4. Force a check to see if the files are actually on the disk\n",
+    "print(\"--- Disk Check ---\")\n",
+    "print(\"Files in working directory:\", os.listdir('/kaggle/working'))"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "databundleVersionId": 16119586,
+     "sourceId": 130469,
+     "sourceType": "competition"
+    }
+   ],
+   "dockerImageVersionId": 31286,
+   "isGpuEnabled": false,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.12"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 186.495217,
+   "end_time": "2026-03-17T10:39:47.011741",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2026-03-17T10:36:40.516524",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
